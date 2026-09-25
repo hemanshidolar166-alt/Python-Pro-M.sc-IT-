@@ -1,10 +1,10 @@
+
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
 app = Flask(__name__)
 
-# SQLite database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///todo.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -42,22 +42,15 @@ def index():
 # Add task
 @app.route('/add', methods=['POST'])
 def add_task():
-
-    title = request.form['title']
-    description = request.form['description']
-    priority = request.form['priority']
     due_date = request.form['due_date']
 
-    if due_date:
-        due_date = datetime.strptime(due_date, '%Y-%m-%d').date()
-    else:
-        due_date = None
-
     task = Task(
-        title=title,
-        description=description,
-        priority=priority,
-        due_date=due_date
+        title=request.form['title'],
+        description=request.form['description'],
+        priority=request.form['priority'],
+        due_date=datetime.strptime(
+            due_date, '%Y-%m-%d'
+        ).date() if due_date else None
     )
 
     db.session.add(task)
@@ -66,10 +59,9 @@ def add_task():
     return redirect(url_for('index'))
 
 
-# Toggle task
+# Complete / Uncomplete task
 @app.route('/toggle/<int:id>')
 def toggle_task(id):
-
     task = Task.query.get_or_404(id)
 
     task.is_completed = not task.is_completed
@@ -80,44 +72,39 @@ def toggle_task(id):
 
 
 # Update task
-@app.route('/update/<int:id>', methods=['GET', 'POST'])
+@app.route('/update/<int:id>', methods=['PUT'])
 def update_task(id):
-
     task = Task.query.get_or_404(id)
 
-    if request.method == 'POST':
+    task.title = request.form['title']
+    task.description = request.form['description']
+    task.priority = request.form['priority']
 
-        task.title = request.form['title']
-        task.description = request.form['description']
-        task.priority = request.form['priority']
+    due_date = request.form['due_date']
 
-        due_date = request.form['due_date']
+    if due_date:
+        task.due_date = datetime.strptime(
+            due_date, '%Y-%m-%d'
+        ).date()
+    else:
+        task.due_date = None
 
-        if due_date:
-            task.due_date = datetime.strptime(
-                due_date, '%Y-%m-%d'
-            ).date()
-        else:
-            task.due_date = None
+    db.session.commit()
 
-        db.session.commit()
-
-        return redirect(url_for('index'))
-
-    return render_template('update.html', task=task)
+    return "Updated Successfully"
 
 
 # Delete task
-@app.route('/delete/<int:id>', methods=['POST'])
+@app.route('/delete/<int:id>', methods=['DELETE'])
 def delete_task(id):
-
     task = Task.query.get_or_404(id)
 
     db.session.delete(task)
     db.session.commit()
 
-    return redirect(url_for('index'))
+    return "Deleted Successfully"
 
 
+# Run application
 if __name__ == '__main__':
     app.run(debug=True)
