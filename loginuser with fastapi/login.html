@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Login</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+
+            height: 100vh;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            /* Background Image */
+            background-image:
+                linear-gradient(
+                    rgba(0, 0, 0, 0.45),
+                    rgba(0, 0, 0, 0.45)
+                ),
+                url("https://images.unsplash.com/photo-1516321318423-f06f85e504b3");
+
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+
+        /* LOGIN BOX */
+
+        .box {
+            width: 350px;
+
+            padding: 35px;
+
+            background: rgba(255, 255, 255, 0.95);
+
+            border-radius: 18px;
+
+            box-shadow:
+                0 15px 40px rgba(0, 0, 0, 0.35);
+
+            backdrop-filter: blur(5px);
+        }
+
+
+        .logo {
+            width: 60px;
+            height: 60px;
+
+            margin: auto;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            background: #667eea;
+
+            color: white;
+
+            border-radius: 50%;
+
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+
+        h2 {
+            text-align: center;
+
+            margin-top: 18px;
+            margin-bottom: 5px;
+
+            color: #222;
+        }
+
+
+        .subtitle {
+            text-align: center;
+
+            color: #777;
+
+            font-size: 14px;
+
+            margin-bottom: 25px;
+        }
+
+
+        /* INPUT */
+
+        input {
+            width: 100%;
+
+            padding: 13px;
+
+            margin-top: 12px;
+
+            border: 1px solid #ddd;
+
+            border-radius: 8px;
+
+            outline: none;
+
+            font-size: 14px;
+        }
+
+
+        input:focus {
+            border-color: #667eea;
+
+            box-shadow:
+                0 0 5px rgba(102,126,234,0.3);
+        }
+
+
+        /* LOGIN BUTTON */
+
+        button {
+            width: 100%;
+
+            padding: 13px;
+
+            margin-top: 20px;
+
+            background: #667eea;
+
+            color: white;
+
+            border: none;
+
+            border-radius: 8px;
+
+            font-size: 16px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+            transition: 0.3s;
+        }
+
+
+        button:hover {
+            background: #5568d9;
+
+            transform: translateY(-1px);
+        }
+
+
+        #message {
+            text-align: center;
+
+            color: red;
+
+            font-size: 14px;
+
+            margin-top: 15px;
+        }
+
+
+        .footer {
+            text-align: center;
+
+            color: #999;
+
+            font-size: 12px;
+
+            margin-top: 25px;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="box">
+
+    <div class="logo">
+        🔐
+    </div>
+
+
+    <h2>Welcome Back</h2>
+
+    <p class="subtitle">
+        Login to continue to your account
+    </p>
+
+
+    <input
+        type="text"
+        id="username"
+        placeholder="Enter Username"
+    >
+
+
+    <input
+        type="password"
+        id="password"
+        placeholder="Enter Password"
+    >
+
+
+    <button onclick="login()">
+        Login
+    </button>
+
+
+    <p id="message"></p>
+
+
+    <div class="footer">
+        Secure Login System
+    </div>
+
+</div>
+
+
+<script>
+
+async function login() {
+
+    let username =
+        document.getElementById("username").value;
+
+    let password =
+        document.getElementById("password").value;
+
+
+    if (username === "" || password === "") {
+
+        document.getElementById("message").innerText =
+            "Please enter username and password";
+
+        return;
+    }
+
+
+    let response = await fetch("/login", {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+            username: username,
+            password: password
+        })
+
+    });
+
+
+    if (response.redirected) {
+
+        window.location.href =
+            response.url;
+
+        return;
+    }
+
+
+    let data = await response.json();
+
+
+    document.getElementById("message").innerText =
+        data.message;
+
+}
+
+</script>
+
+
+</body>
+
+</html>
